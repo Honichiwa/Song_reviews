@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, mixins, status
 from . import models, serializers
 from django.utils.translation import gettext_lazy as _
+from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 class SongReviewList(generics.ListCreateAPIView):
@@ -70,3 +71,29 @@ class SongReviewCommentDetail(generics.RetrieveUpdateDestroyAPIView):
         except Exception as e:
             raise ValidationError(_(f'You cannot delete this {e}'))
         return self.destroy(request, *args, **kwargs)
+
+class SongReviewLikeCreateDestroy(generics.CreateAPIView, mixins.DestroyModelMixin):
+    serializer_class = serializers.SongReviewLkeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        review = models.SongReview.objects.get(pk=self.kwargs['pk'])
+        return models.SongReviewLike.objects.filter(user=self.request.user, review=review)
+    
+    def perform_create(self, serializer):
+        if self.get_queryset().exists():
+            raise ValidationError(_('You already liked this'))
+        review = models.SongReview.objects.get(pk=self.kwargs['pk'])
+        serializer.save(user=self.request.user, review=review)
+
+    def delete(self, request, *args, **kwargs):
+        if self.get_queryset().exists():
+            self.get_queryset().delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise ValidationError(_('You cannot unlike what you dont like'))
+
+class SongList(generics.ListAPIView):
+    queryset = models.Song.objects.all()
+    serializer_class = serializers.SongSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]

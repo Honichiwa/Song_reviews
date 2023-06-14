@@ -29,7 +29,10 @@ class Song(models.Model):
         on_delete=models.CASCADE,
         related_name="songs",
     )
-
+    cover = models.ImageField(_("cover"),
+        upload_to='songs/covers',
+        null=True, blank=True,
+    )
     class Meta:
         verbose_name = _("song")
         verbose_name_plural = _("songs")
@@ -106,7 +109,6 @@ class SongReviewLike(models.Model):
         on_delete=models.CASCADE,
         related_name='likes',
     )
-
     class Meta:
         verbose_name = _("songreviewlike")
         verbose_name_plural = _("songreviewlikes")
