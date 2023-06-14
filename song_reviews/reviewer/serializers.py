@@ -39,4 +39,4 @@ class SongReviewLkeSerializer(serializers.ModelSerializer):
 class SongSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Song
-        fields = ['name', 'duration', 'band', 'cover']
+        fields = ['id', 'name', 'duration', 'band', 'cover']

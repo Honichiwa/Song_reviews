@@ -97,3 +97,8 @@ class SongList(generics.ListAPIView):
     queryset = models.Song.objects.all()
     serializer_class = serializers.SongSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class SongDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Song.objects.all()
+    serializer_class = serializers.SongSerializer
+    permission_classes = [permissions.IsAdminUser]
